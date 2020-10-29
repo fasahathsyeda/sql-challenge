@@ -1,56 +1,75 @@
--- 1)List the following details of each employee: employee number, last name, first name, sex, and salary.
-select DISTINCT
-e.emp_no,
-e.last_name,
-e.first_name,
-e.gender,
-s.salary
-from employees e
-JOIN salaries s
-on e.emp_no = s.emp_no;
+-- Exported from QuickDBD: https://www.quickdatabasediagrams.com/
+-- NOTE! If you have used non-SQL datatypes in your design, you will have to change these here.
 
--- 2)List first name, last name, and hire date for employees who were hired in 1986.
-SELECT 
-e.first_name, e.last_name, e.hire_date 
-FROM employees e
-WHERE EXTRACT(year from e.hire_date)=1986;
 
--- 3)List the manager of each department with the following information: 
--- department number, department name, the manager's employee number, last name, first name.
-select distinct
-dp.dept_no
-,dp.dept_name
-,emp.emp_no
-,emp.last_name
-,emp.first_name
-from dept_manager dm
-Inner JOIN departments dp
-on dp.dept_no = dm.dept_no
-Inner JOIN employees emp
-on emp.emp_no = dm.emp_no;
+CREATE TABLE "departments" (
+    "dept_no" VARCHAR   NOT NULL,
+    "dept_name" VARCHAR(30)   NOT NULL,
+    CONSTRAINT "pk_departments" PRIMARY KEY (
+        "dept_no"
+     )
+);
 
--- 4)List the department of each employee with the following information: 
--- employee number, last name, first name, and department name. 
+CREATE TABLE "titles" (
+    "title_id" VARCHAR(5)   NOT NULL,
+    "title" VARCHAR(30)   NOT NULL,
+    CONSTRAINT "pk_titles" PRIMARY KEY (
+        "title_id"
+     )
+);
 
-select distinct e.emp_no,e.last_name,e.first_name,d.dept_name
-from employees e
-inner join dept_emp de on e.emp_no=de.emp_no
-inner join departments d on de.dept_no=d.dept_no;
+CREATE TABLE "employees" (
+    "emp_no" INT   NOT NULL,
+    "emp_title_id" VARCHAR(5)   NOT NULL,
+    "birth_date" DATE   NOT NULL,
+    "first_name" VARCHAR(250)   NOT NULL,
+    "last_name" VARCHAR(250)   NOT NULL,
+    "gender" VARCHAR   NOT NULL,
+    "hire_date" DATE   NOT NULL,
+    CONSTRAINT "pk_employees" PRIMARY KEY (
+        "emp_no"
+     )
+);
 
--- 5)List first name, last name, and sex for employees whose first name is "Hercules" and last names begin with "B."
+CREATE TABLE "dept_manager" (
+    "dept_no" VARCHAR(5)   NOT NULL,
+    "emp_no" INT   NOT NULL,
+    CONSTRAINT "pk_dept_manager" PRIMARY KEY (
+        "emp_no"
+     )
+);
 
-select first_name,last_name,gender
-from employees
-where first_name='Hercules' and last_name like 'B%';
+CREATE TABLE "dept_emp" (
+    "emp_no" INT   NOT NULL,
+    "dept_no" VARCHAR(5)   NOT NULL,
+    CONSTRAINT "pk_dept_emp" PRIMARY KEY (
+        "emp_no","dept_no"
+     )
+);
 
--- 6)List all employees in the Sales department, including their employee number, last name, first name, 
--- and department name.
-select distinct e.emp_no,e.last_name,e.first_name,d.dept_name
-from employees e
-inner join dept_emp de on e.emp_no=de.emp_no
-inner join departments d on de.dept_no=d.dept_no
-where d.dept_name='Sales';
+CREATE TABLE "salaries" (
+    "emp_no" INT   NOT NULL,
+    "salary" INT   NOT NULL,
+    CONSTRAINT "pk_salaries" PRIMARY KEY (
+        "emp_no"
+     )
+);
 
-select * from titles;
+ALTER TABLE "employees" ADD CONSTRAINT "fk_employees_emp_title_id" FOREIGN KEY("emp_title_id")
+REFERENCES "titles" ("title_id");
 
+ALTER TABLE "dept_manager" ADD CONSTRAINT "fk_dept_manager_dept_no" FOREIGN KEY("dept_no")
+REFERENCES "departments" ("dept_no");
+
+ALTER TABLE "dept_manager" ADD CONSTRAINT "fk_dept_manager_emp_no" FOREIGN KEY("emp_no")
+REFERENCES "employees" ("emp_no");
+
+ALTER TABLE "dept_emp" ADD CONSTRAINT "fk_dept_emp_emp_no" FOREIGN KEY("emp_no")
+REFERENCES "employees" ("emp_no");
+
+ALTER TABLE "dept_emp" ADD CONSTRAINT "fk_dept_emp_dept_no" FOREIGN KEY("dept_no")
+REFERENCES "departments" ("dept_no");
+
+ALTER TABLE "salaries" ADD CONSTRAINT "fk_salaries_emp_no" FOREIGN KEY("emp_no")
+REFERENCES "employees" ("emp_no");
 
